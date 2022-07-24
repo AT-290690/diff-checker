@@ -1,4 +1,4 @@
-import { match, apply, additions, removals } from './diff.js';
+import { match, apply, additions, removals, extract } from './diff.js';
 
 const elA = document.getElementById('A');
 const elB = document.getElementById('B');
@@ -28,6 +28,8 @@ reset.addEventListener('click', () => {
   elB.innerHTML = `<textarea id="inputB" spellcheck="false"></textarea>`;
   const inpA = document.getElementById('inputA');
   const inpB = document.getElementById('inputB');
+  inpA.value = State.a;
+  inpB.value = State.a;
   inpA.ondrop = e => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
@@ -46,6 +48,23 @@ merge.addEventListener('click', () => {
   const inpA = document.getElementById('inputA');
   const inpB = document.getElementById('inputB');
   inpA.value = inpB.value = apply(State.diff, State.a);
+});
+
+const changes = document.getElementById('changes');
+changes.addEventListener('click', () => {
+  if (elA.style.display === 'grid') {
+    for (const el of document.getElementsByClassName('adj')) {
+      el.style.display = null;
+    }
+    elA.style.display = 'block';
+    elB.style.display = 'block';
+  } else {
+    for (const el of document.getElementsByClassName('adj')) {
+      el.style.display = 'none';
+    }
+    elA.style.display = 'grid';
+    elB.style.display = 'grid';
+  }
 });
 
 reset.click();

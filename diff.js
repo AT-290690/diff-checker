@@ -44,7 +44,7 @@ export const additions = (data = [], buffer = '', element) => {
         else if (characters[i] === '\n') rest += '<br/>';
         else rest += characters[i];
       }
-      element.innerHTML += rest;
+      element.innerHTML += `<span class="adj">${rest}</span>`;
       pointer += value;
     } else if (type === -1) {
       pointer += value;
@@ -72,7 +72,7 @@ export const removals = (data = [], buffer = '', element) => {
         else if (characters[i] === '\n') rest += '<br/>';
         else rest += characters[i];
       }
-      element.innerHTML += rest;
+      element.innerHTML += `<span class="adj">${rest}</span>`;
       pointer += value;
     } else if (type === -1) {
       let res = '';
@@ -86,3 +86,4 @@ export const removals = (data = [], buffer = '', element) => {
     }
   });
 };
+export const extract = (data = [], type) => data.filter(x => x[0] === type);
