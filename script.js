@@ -89,16 +89,14 @@ changes.addEventListener('click', () => {
     exitChangesMode(['add', 'remove']);
   } else {
     enterChangesMode(['add', 'remove']);
-    onclick =
-      "() => { document.getElementById('changes').click(); this.scrollIntoView(); }";
     for (const el of document.getElementsByClassName('add')) {
       const onClick = () => {
         el.removeEventListener('click', onClick);
         exitChangesMode(['add']);
         el.scrollIntoView({
           behavior: 'smooth',
-          block: 'end',
-          inline: 'nearest'
+          block: 'center',
+          inline: 'center'
         });
       };
       el.addEventListener('click', onClick, true);
