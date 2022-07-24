@@ -40,8 +40,8 @@ reset.addEventListener('click', () => {
   const inpRemove = document.getElementById('inputRemove');
   const inpAdd = document.getElementById('inputAdd');
   if (State.orientation === 'horizontal') {
-    inpRemove.style = 'height: 43vh';
-    inpAdd.style = 'height: 43vh';
+    inpRemove.style = 'height: 43vh; width: auto';
+    inpAdd.style = 'height: 43vh; width: auto';
   }
   inpRemove.value = State.a;
   inpAdd.value = '';
@@ -128,9 +128,9 @@ const rotateLayout = type => {
     diffElements.add.style = 'height: 43vh; width: auto';
     diffElements.remove.style = 'height: 43vh; width: auto';
     toolbar.style = 'flex-direction: row; margin: 10px';
-    if (diffElements.remove) {
-      diffElements.remove.style = 'height: 43vh';
-      diffElements.add.style = 'height: 43vh';
+    if (inpRemove) {
+      inpRemove.style = 'height: 43vh';
+      inpAdd.style = 'height: 43vh';
     }
   } else if (type === 'vertical') {
     localStorage.setItem('orientation', (State.orientation = 'vertical'));
