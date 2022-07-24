@@ -29,7 +29,7 @@ reset.addEventListener('click', () => {
   const inpA = document.getElementById('inputA');
   const inpB = document.getElementById('inputB');
   inpA.value = State.a;
-  inpB.value = State.a;
+  inpB.value = '';
   inpA.ondrop = e => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
@@ -47,7 +47,8 @@ merge.addEventListener('click', () => {
   reset.click();
   const inpA = document.getElementById('inputA');
   const inpB = document.getElementById('inputB');
-  inpA.value = inpB.value = apply(State.diff, State.a);
+  inpB.value = '';
+  inpA.value = apply(State.diff, State.a);
 });
 
 const changes = document.getElementById('changes');
