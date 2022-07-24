@@ -1,6 +1,7 @@
 body {
   background: black;
   border: none;
+  margin: 5px;
 }
 
 .add {
@@ -29,7 +30,7 @@ svg:hover {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  padding: 5px;
+  max-height: 97vh;
 }
 .diff {
   font-family: 'Roboto Mono', monospac;
