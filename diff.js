@@ -43,7 +43,7 @@ export const additions = (data = [], buffer = '', element) => {
         else if (characters[i] === '\n') rest += '<br/>';
         else rest += characters[i];
       }
-      element.innerHTML += `<span class="adj">${rest}</span>`;
+      element.innerHTML += `<span class="adj-add">${rest}</span>`;
       pointer += value;
     } else if (type === -1) {
       pointer += value;
@@ -71,7 +71,7 @@ export const removals = (data = [], buffer = '', element) => {
         else if (characters[i] === '\n') rest += '<br/>';
         else rest += characters[i];
       }
-      element.innerHTML += `<span class="adj">${rest}</span>`;
+      element.innerHTML += `<span class="adj-remove">${rest}</span>`;
       pointer += value;
     } else if (type === -1) {
       let res = '';

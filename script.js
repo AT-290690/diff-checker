@@ -1,8 +1,10 @@
 import { match, apply, additions, removals } from './diff.js';
 
 const main = document.getElementById('main');
-const elA = document.getElementById('A');
-const elB = document.getElementById('B');
+const diffElements = {
+  add: document.getElementById('Add'),
+  remove: document.getElementById('Remove')
+};
 const toolbar = document.getElementById('toolbar');
 const compare = document.getElementById('compare');
 const State = {
@@ -12,16 +14,16 @@ const State = {
 };
 
 compare.addEventListener('click', () => {
-  const inpA = document.getElementById('inputA');
-  if (inpA) {
-    const inpB = document.getElementById('inputB');
-    const temp = inpA.value;
+  const inpRemove = document.getElementById('inputRemove');
+  if (inpRemove) {
+    const inpAdd = document.getElementById('inputAdd');
+    const temp = inpRemove.value;
     State.a = temp;
-    const diff = (State.diff = match(inpA.value, inpB.value));
-    elA.innerHTML = '';
-    elB.innerHTML = '';
-    additions(diff, temp, elB);
-    removals(diff, temp, elA);
+    const diff = (State.diff = match(inpRemove.value, inpAdd.value));
+    diffElements.add.innerHTML = '';
+    diffElements.remove.innerHTML = '';
+    additions(diff, temp, diffElements.add);
+    removals(diff, temp, diffElements.remove);
   }
 });
 
@@ -33,64 +35,66 @@ const dropfile = (file, el) => {
 
 const reset = document.getElementById('reset');
 reset.addEventListener('click', () => {
-  elA.innerHTML = `<textarea id="inputA" spellcheck="false"></textarea>`;
-  elB.innerHTML = `<textarea id="inputB" spellcheck="false"></textarea>`;
-  const inpA = document.getElementById('inputA');
-  const inpB = document.getElementById('inputB');
+  diffElements.remove.innerHTML = `<textarea id="inputRemove" spellcheck="false"></textarea>`;
+  diffElements.add.innerHTML = `<textarea id="inputAdd" spellcheck="false"></textarea>`;
+  const inpRemove = document.getElementById('inputRemove');
+  const inpAdd = document.getElementById('inputAdd');
   if (State.orientation === 'horizontal') {
-    inpA.style = 'height: 43vh';
-    inpB.style = 'height: 43vh';
+    inpRemove.style = 'height: 43vh';
+    inpAdd.style = 'height: 43vh';
   }
-  inpA.value = State.a;
-  inpB.value = '';
-  inpA.ondrop = e => {
+  inpRemove.value = State.a;
+  inpAdd.value = '';
+  inpRemove.ondrop = e => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    dropfile(file, inpA);
+    dropfile(file, inpRemove);
   };
-  inpB.ondrop = e => {
+  inpAdd.ondrop = e => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    dropfile(file, inpB);
+    dropfile(file, inpAdd);
   };
 });
 
 const merge = document.getElementById('merge');
 merge.addEventListener('click', () => {
   reset.click();
-  const inpA = document.getElementById('inputA');
-  const inpB = document.getElementById('inputB');
-  inpB.value = '';
-  inpA.value = apply(State.diff, State.a);
+  const inpRemove = document.getElementById('inputRemove');
+  const inpAdd = document.getElementById('inputAdd');
+  inpAdd.value = '';
+  inpRemove.value = apply(State.diff, State.a);
 });
 
 const changes = document.getElementById('changes');
 
 changes.addEventListener('click', () => {
-  const enterChangesMode = () => {
-    for (const el of document.getElementsByClassName('adj')) {
-      el.style.display = 'none';
-    }
-    elA.style.display = 'grid';
-    elB.style.display = 'grid';
+  const enterChangesMode = args => {
+    args.forEach(arg => {
+      for (const el of document.getElementsByClassName(`adj-${arg}`)) {
+        el.style.display = 'none';
+      }
+      diffElements[arg].style.display = 'grid';
+    });
   };
-  const exitChangesMode = () => {
-    for (const el of document.getElementsByClassName('adj')) {
-      el.style.display = null;
-    }
-    elA.style.display = 'block';
-    elB.style.display = 'block';
+  const exitChangesMode = args => {
+    args.forEach(arg => {
+      for (const el of document.getElementsByClassName(`adj-${arg}`)) {
+        el.style.display = null;
+      }
+      diffElements[arg].style.display = 'block';
+    });
   };
-  if (elA.style.display === 'grid') {
-    exitChangesMode();
+  if (diffElements.remove.style.display === 'grid') {
+    exitChangesMode(['add', 'remove']);
   } else {
-    enterChangesMode();
+    enterChangesMode(['add', 'remove']);
     onclick =
       "() => { document.getElementById('changes').click(); this.scrollIntoView(); }";
     for (const el of document.getElementsByClassName('add')) {
       const onClick = () => {
         el.removeEventListener('click', onClick);
-        exitChangesMode();
+        exitChangesMode(['add']);
         el.scrollIntoView({
           behavior: 'smooth',
           block: 'end',
@@ -103,7 +107,7 @@ changes.addEventListener('click', () => {
     for (const el of document.getElementsByClassName('remove')) {
       const onClick = () => {
         el.removeEventListener('click', onClick);
-        exitChangesMode();
+        exitChangesMode(['remove']);
         el.scrollIntoView({
           behavior: 'smooth',
           block: 'center',
@@ -116,26 +120,26 @@ changes.addEventListener('click', () => {
 });
 const rotate = document.getElementById('rotate');
 const rotateLayout = type => {
-  const inpA = document.getElementById('inputA');
-  const inpB = document.getElementById('inputB');
+  const inpRemove = document.getElementById('inputRemove');
+  const inpAdd = document.getElementById('inputAdd');
   if (type === 'horizontal') {
     localStorage.setItem('orientation', (State.orientation = 'horizontal'));
     main.style = 'flex-direction: column';
-    elA.style = 'height: 43vh; width: auto';
-    elB.style = 'height: 43vh; width: auto';
+    diffElements.add.style = 'height: 43vh; width: auto';
+    diffElements.remove.style = 'height: 43vh; width: auto';
     toolbar.style = 'flex-direction: row; margin: 10px';
-    if (inpA) {
-      inpA.style = 'height: 43vh';
-      inpB.style = 'height: 43vh';
+    if (diffElements.remove) {
+      diffElements.remove.style = 'height: 43vh';
+      diffElements.add.style = 'height: 43vh';
     }
   } else if (type === 'vertical') {
     localStorage.setItem('orientation', (State.orientation = 'vertical'));
     main.style = null;
-    elA.style = null;
-    elB.style = null;
-    if (inpA) {
-      inpA.style = null;
-      inpB.style = null;
+    diffElements.add.style = null;
+    diffElements.remove.style = null;
+    if (inpRemove) {
+      inpRemove.style = null;
+      inpAdd.style = null;
     }
     toolbar.style = null;
   }

@@ -32,7 +32,7 @@ svg:hover {
   padding: 5px;
 }
 .diff {
-  font-family: 'Inconsolata', monospace;
+  font-family: 'Roboto Mono', monospac;
   font-size: 15px;
   color: #3e4d67;
   overflow: auto;
@@ -66,21 +66,23 @@ textarea {
   max-height: 95vh;
   padding: 0;
 }
-.adj {
+.adj-add,
+.adj-remove {
   opacity: 0.8;
 }
-.adj:hover {
+.adj-add:hover,
+.adj-remove:hover {
   color: #7486a6;
   opacity: 1;
 }
-#A {
+#Remove {
   border-color: #ff5959;
   width: 50vw;
   height: 95vh;
   max-height: 95vh;
 }
 
-#B {
+#Add {
   border-color: #85f185;
   width: 50vw;
   height: 95vh;
