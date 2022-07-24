@@ -1,0 +1,88 @@
+body {
+  background: black;
+  border: none;
+}
+
+.add {
+  color: #85f185;
+  border: none;
+}
+.add:hover {
+  color: white;
+  font-weight: 900;
+  background-color: #85f1857a;
+}
+svg:hover {
+  fill: white;
+  stroke: white;
+}
+.remove {
+  color: #ff5959;
+  border: none;
+}
+.remove:hover {
+  color: white;
+  font-weight: 900;
+  background-color: #ff59597a;
+}
+#main {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 5px;
+}
+.diff {
+  font-family: 'Inconsolata', monospace;
+  font-size: 15px;
+  color: #3e4d67;
+  overflow: auto;
+  border: solid 0.5px grey;
+  padding: 5px;
+}
+
+.button {
+  background: transparent;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+#toolbar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+textarea {
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: scroll;
+  resize: none;
+  font-family: 'Inconsolata', monospace;
+  color: #3e4d67;
+  font-size: 15px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  height: 95vh;
+  max-height: 95vh;
+  padding: 0;
+}
+.adj {
+  opacity: 0.8;
+}
+.adj:hover {
+  color: #7486a6;
+  opacity: 1;
+}
+#A {
+  border-color: #ff5959;
+  width: 50vw;
+  height: 95vh;
+  max-height: 95vh;
+}
+
+#B {
+  border-color: #85f185;
+  width: 50vw;
+  height: 95vh;
+  max-height: 95vh;
+}

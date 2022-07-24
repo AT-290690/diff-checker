@@ -30,7 +30,6 @@ export const apply = (data = [], buffer = '') => {
   });
   return result.join('');
 };
-
 export const additions = (data = [], buffer = '', element) => {
   const characters = buffer.split('');
   let pointer = 0;
@@ -86,4 +85,4 @@ export const removals = (data = [], buffer = '', element) => {
     }
   });
 };
-export const extract = (data = [], type) => data.filter(x => x[0] === type);
+// export const extract = (data = [], type) => data.filter(x => x[0] === type);
