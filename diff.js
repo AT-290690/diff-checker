@@ -30,29 +30,32 @@ export const apply = (data = [], buffer = '') => {
   });
   return result.join('');
 };
+const formatTextToHtml = current => {
+  if (current === ' ' || current === '\t') return '&nbsp;';
+  else if (current === '\n') return '<br/>';
+  return current;
+};
 export const additions = (data = [], buffer = '', element) => {
   const characters = buffer.split('');
   let pointer = 0;
-  data.forEach((change, index) => {
+  data.forEach(change => {
     const type = change[0];
     const value = change[1];
     if (type === 0) {
-      let rest = '';
+      let res = '';
       for (let i = pointer; i < pointer + value; i++) {
-        if (characters[i] === ' ') rest += '&nbsp;';
-        else if (characters[i] === '\n') rest += '<br/>';
-        else rest += characters[i];
+        const current = characters[i];
+        res += formatTextToHtml(current);
       }
-      element.innerHTML += `<span class="adj-add">${rest}</span>`;
+      element.innerHTML += `<span class="adj-add">${res}</span>`;
       pointer += value;
     } else if (type === -1) {
       pointer += value;
     } else if (type === 1) {
       let res = '';
       for (let i = 0; i < value.length; i++) {
-        if (value[i] === ' ') res += '&nbsp;';
-        else if (value[i] === '\n') res += '<br/>';
-        else res += value[i];
+        const current = value[i];
+        res += formatTextToHtml(current);
       }
       element.innerHTML += `<span class="add">${res}</span>`;
     }
@@ -61,24 +64,22 @@ export const additions = (data = [], buffer = '', element) => {
 export const removals = (data = [], buffer = '', element) => {
   const characters = buffer.split('');
   let pointer = 0;
-  data.forEach((change, index) => {
+  data.forEach(change => {
     const type = change[0];
     const value = change[1];
     if (type === 0) {
-      let rest = '';
+      let res = '';
       for (let i = pointer; i < pointer + value; i++) {
-        if (characters[i] === ' ') rest += '&nbsp;';
-        else if (characters[i] === '\n') rest += '<br/>';
-        else rest += characters[i];
+        const current = characters[i];
+        res += formatTextToHtml(current);
       }
-      element.innerHTML += `<span class="adj-remove">${rest}</span>`;
+      element.innerHTML += `<span class="adj-remove">${res}</span>`;
       pointer += value;
     } else if (type === -1) {
       let res = '';
       for (let i = pointer; i < pointer + value; i++) {
-        if (characters[i] === ' ') res += '&nbsp;';
-        else if (characters[i] === '\n') res += '<br/>';
-        else res += characters[i];
+        const current = characters[i];
+        res += formatTextToHtml(current);
       }
       element.innerHTML += `<span class="remove">${res}</span>`;
       pointer += value;

@@ -41,7 +41,7 @@ reset.addEventListener('click', () => {
   const inpAdd = document.getElementById('inputAdd');
   if (State.orientation === 'horizontal') {
     inpRemove.style = 'height: 43vh';
-    inpAdd.style = 'height: 43vh;';
+    inpAdd.style = 'height: 43vh';
   }
   inpRemove.value = State.a;
   inpAdd.value = '';
