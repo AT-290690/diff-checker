@@ -10,7 +10,7 @@ const formatTextToHtml = current =>
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/\n/g, '<br/>')
-    .replace(/\s/g, '&nbsp;');
+    .replace(/\s|\t/g, '&nbsp;');
 
 export const additions = (data = [], buffer = '', element) => {
   const characters = buffer.split('');
