@@ -4,27 +4,35 @@ body {
   margin: 5px;
 }
 
+:root {
+  --color-add: #85f185;
+  --color-remove: #ff5959;
+  --color-stay: 
+  --background-add-hover: #85f1857a;
+  --background-remove-hover: #ff59597a;
+}
+
 .add {
-  color: #85f185;
+  color: var(--color-add);
   border: none;
 }
 .add:hover {
   color: white;
   font-weight: 900;
-  background-color: #85f1857a;
+  background-color: var(--background-add-hover);
 }
 svg:hover {
   fill: white;
   stroke: white;
 }
 .remove {
-  color: #ff5959;
+  color: var(--color-remove);
   border: none;
 }
 .remove:hover {
   color: white;
   font-weight: 900;
-  background-color: #ff59597a;
+  background-color: var(--background-remove-hover);
 }
 #main {
   display: flex;
@@ -39,7 +47,7 @@ svg:hover {
 .diff {
   font-family: 'Roboto Mono', monospac;
   font-size: 15px;
-  color: #3e4d67;
+  color: var(--color-stay);
   overflow: auto;
   border: solid 0.5px grey;
   padding: 5px;
@@ -64,7 +72,7 @@ textarea {
   overflow-x: scroll;
   resize: none;
   font-family: 'Roboto Mono', monospac;
-  color: #3e4d67;
+  color: var(--color-stay);
   font-size: 15px;
   width: 100%;
   background: transparent;
@@ -73,24 +81,24 @@ textarea {
   max-height: 95vh;
   padding: 0;
 }
-.adj-add,
-.adj-remove {
+.stay-add,
+.stay-remove {
   opacity: 0.8;
 }
-.adj-add:hover,
-.adj-remove:hover {
+.stay-add:hover,
+.stay-remove:hover {
   color: #7486a6;
   opacity: 1;
 }
 #Remove {
-  border-color: #ff5959;
+  border-color: var(--color-remove);
   width: 50vw;
   height: 95vh;
   max-height: 95vh;
 }
 
 #Add {
-  border-color: #85f185;
+  border-color: var(--color-add);
   width: 50vw;
   height: 95vh;
   max-height: 95vh;

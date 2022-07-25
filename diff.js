@@ -1,40 +1,23 @@
 const dmp = new diff_match_patch();
-export const match = (a, b) => {
-  const diff = [];
-  const diff_obj = dmp.diff_main(a, b, true);
-  for (const change in diff_obj) {
-    const type = diff_obj[change][0];
-    if (type === 0 || type === -1)
-      diff_obj[change][1] = diff_obj[change][1].length;
-    diff.push([type, diff_obj[change][1]]);
-  }
-  return diff_obj;
-};
-export const apply = (data = [], buffer = '') => {
-  const characters = buffer.split('');
-  const result = [];
-  let pointer = 0;
-  data.forEach(change => {
-    const type = change[0];
-    const value = change[1];
-    if (type === 0) {
-      for (let i = pointer; i < pointer + value; i++) {
-        result.push(characters[i]);
-      }
-      pointer += value;
-    } else if (type === -1) {
-      pointer += value;
-    } else if (type === 1) {
-      result.push(...value);
-    }
-  });
-  return result.join('');
-};
-const formatTextToHtml = current => {
-  if (current === ' ' || current === '\t') return '&nbsp;';
-  else if (current === '\n') return '<br/>';
-  return current;
-};
+export const match = (a, b) => dmp.diff_main(a, b, true);
+
+export const patch = (diff = [], buffer = '') =>
+  dmp.patch_apply(dmp.patch_make(diff), buffer);
+
+const pattern_amp = /&/g;
+const pattern_lt = /</g;
+const pattern_gt = />/g;
+const pattern_para = /\n/g;
+const pattern_space = /\s/g;
+
+const formatTextToHtml = current =>
+  current
+    .replace(pattern_amp, '&amp;')
+    .replace(pattern_space, '&nbsp;')
+    .replace(pattern_lt, '&lt;')
+    .replace(pattern_gt, '&gt;')
+    .replace(pattern_para, '&para;<br>');
+
 export const additions = (data = [], buffer = '', element) => {
   const characters = buffer.split('');
   let pointer = 0;
@@ -43,20 +26,21 @@ export const additions = (data = [], buffer = '', element) => {
     const value = change[1];
     if (type === 0) {
       let res = '';
-      for (let i = pointer; i < pointer + value; i++) {
+      for (let i = pointer; i < pointer + value.length; i++) {
         const current = characters[i];
         res += formatTextToHtml(current);
       }
-      element.innerHTML += `<span class="adj-add">${res}</span>`;
-      pointer += value;
+      element.innerHTML += `<span class="stay-add">${res}</span>`;
+      pointer += value.length;
     } else if (type === -1) {
-      pointer += value;
+      pointer += value.length;
     } else if (type === 1) {
       let res = '';
       for (let i = 0; i < value.length; i++) {
         const current = value[i];
         res += formatTextToHtml(current);
       }
+
       element.innerHTML += `<span class="add">${res}</span>`;
     }
   });
@@ -69,20 +53,20 @@ export const removals = (data = [], buffer = '', element) => {
     const value = change[1];
     if (type === 0) {
       let res = '';
-      for (let i = pointer; i < pointer + value; i++) {
+      for (let i = pointer; i < pointer + value.length; i++) {
         const current = characters[i];
         res += formatTextToHtml(current);
       }
-      element.innerHTML += `<span class="adj-remove">${res}</span>`;
-      pointer += value;
+      element.innerHTML += `<span class="stay-remove">${res}</span>`;
+      pointer += value.length;
     } else if (type === -1) {
       let res = '';
-      for (let i = pointer; i < pointer + value; i++) {
+      for (let i = pointer; i < pointer + value.length; i++) {
         const current = characters[i];
         res += formatTextToHtml(current);
       }
       element.innerHTML += `<span class="remove">${res}</span>`;
-      pointer += value;
+      pointer += value.length;
     }
   });
 };
