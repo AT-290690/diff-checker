@@ -4,19 +4,13 @@ export const match = (a, b) => dmp.diff_main(a, b, true);
 export const patch = (diff = [], buffer = '') =>
   dmp.patch_apply(dmp.patch_make(diff), buffer);
 
-const pattern_amp = /&/g;
-const pattern_lt = /</g;
-const pattern_gt = />/g;
-const pattern_para = /\n/g;
-const pattern_space = /\s/g;
-
 const formatTextToHtml = current =>
   current
-    .replace(pattern_amp, '&amp;')
-    .replace(pattern_lt, '&lt;')
-    .replace(pattern_gt, '&gt;')
-    .replace(pattern_para, '<br/>')
-    .replace(pattern_space, '&nbsp;');
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br/>')
+    .replace(/\s/g, '&nbsp;');
 
 export const additions = (data = [], buffer = '', element) => {
   const characters = buffer.split('');
