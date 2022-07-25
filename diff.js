@@ -13,10 +13,10 @@ const pattern_space = /\s/g;
 const formatTextToHtml = current =>
   current
     .replace(pattern_amp, '&amp;')
-    .replace(pattern_space, '&nbsp;')
     .replace(pattern_lt, '&lt;')
     .replace(pattern_gt, '&gt;')
-    .replace(pattern_para, '&para;<br>');
+    .replace(pattern_para, '<br/>')
+    .replace(pattern_space, '&nbsp;');
 
 export const additions = (data = [], buffer = '', element) => {
   const characters = buffer.split('');
@@ -70,4 +70,3 @@ export const removals = (data = [], buffer = '', element) => {
     }
   });
 };
-// export const extract = (data = [], type) => data.filter(x => x[0] === type);

@@ -31,15 +31,16 @@ const cleanUpChanges = args => {
 };
 
 const enterStage = stage => {
-  State.stage = stage;
   switch (stage) {
     case 'Diff':
+      State.stage = stage;
       cleanUpChanges(['add', 'remove']);
       hideInputs(['add', 'remove']);
       diffElements.add.diff.style.borderColor = 'var(--color-add)';
       diffElements.remove.diff.style.borderColor = 'var(--color-remove)';
       break;
     case 'Prep':
+      State.stage = stage;
       diffElements.add.diff.style.borderColor = 'var(--color-stay)';
       diffElements.remove.diff.style.borderColor = 'var(--color-stay)';
       showInputs(['add', 'remove']);
@@ -141,6 +142,11 @@ const rotateLayout = type => {
     diffElements.remove.input.style = null;
     diffElements.add.input.style = null;
     toolbar.style = null;
+  }
+
+  if (State.stage === 'Prep') {
+    diffElements.add.diff.style.borderColor = 'var(--color-stay)';
+    diffElements.remove.diff.style.borderColor = 'var(--color-stay)';
   }
 };
 
