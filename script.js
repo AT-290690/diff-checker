@@ -1,30 +1,71 @@
 import { match, apply, additions, removals } from './diff.js';
 
 const main = document.getElementById('main');
+
 const diffElements = {
-  add: document.getElementById('Add'),
-  remove: document.getElementById('Remove')
+  add: {
+    diff: document.getElementById('Add'),
+    changes: document.getElementById('addChanges'),
+    input: document.getElementById('inputAdd')
+  },
+  remove: {
+    diff: document.getElementById('Remove'),
+    changes: document.getElementById('removeChanges'),
+    input: document.getElementById('inputRemove')
+  }
 };
+
 const toolbar = document.getElementById('toolbar');
 const compare = document.getElementById('compare');
+const changes = document.getElementById('changes');
+const reset = document.getElementById('reset');
+const merge = document.getElementById('merge');
+const rotate = document.getElementById('rotate');
+
 const State = {
   orientation: localStorage.getItem('orientation') ?? 'vertical',
   diff: {},
-  a: ''
+  stage: 'Prep', //Prep, Diff
+  cache: ''
+};
+
+const showInputs = args => {
+  args.forEach(arg => {
+    diffElements[arg].input.style.display = 'block';
+    diffElements[arg].changes.style.display = 'none';
+  });
+};
+
+const hideInputs = args => {
+  args.forEach(arg => {
+    diffElements[arg].input.style.display = 'none';
+    diffElements[arg].changes.style.display = 'block';
+  });
+};
+const cleanUpChanges = args => {
+  args.forEach(arg => {
+    diffElements[arg].changes.innerHTML = '';
+  });
+};
+const resetState = () => {
+  showInputs(['add', 'remove']);
+  cleanUpChanges(['add', 'remove']);
+  State.stage = 'Prep';
+  diffElements.remove.input.value = State.cache;
+  diffElements.add.input.value = '';
 };
 
 compare.addEventListener('click', () => {
-  const inpRemove = document.getElementById('inputRemove');
-  if (inpRemove) {
-    const inpAdd = document.getElementById('inputAdd');
-    const temp = inpRemove.value;
-    State.a = temp;
-    const diff = (State.diff = match(inpRemove.value, inpAdd.value));
-    diffElements.add.innerHTML = '';
-    diffElements.remove.innerHTML = '';
-    additions(diff, temp, diffElements.add);
-    removals(diff, temp, diffElements.remove);
-  }
+  State.cache = diffElements.remove.input.value;
+  State.stage = 'Diff';
+  const diff = (State.diff = match(
+    diffElements.remove.input.value,
+    diffElements.add.input.value
+  ));
+  cleanUpChanges(['add', 'remove']);
+  hideInputs(['add', 'remove']);
+  additions(diff, State.cache, diffElements.add.changes);
+  removals(diff, State.cache, diffElements.remove.changes);
 });
 
 const dropfile = (file, el) => {
@@ -33,112 +74,100 @@ const dropfile = (file, el) => {
   reader.readAsText(file, 'UTF-8');
 };
 
-const reset = document.getElementById('reset');
-reset.addEventListener('click', () => {
-  diffElements.remove.innerHTML = `<textarea id="inputRemove" spellcheck="false"></textarea>`;
-  diffElements.add.innerHTML = `<textarea id="inputAdd" spellcheck="false"></textarea>`;
-  const inpRemove = document.getElementById('inputRemove');
-  const inpAdd = document.getElementById('inputAdd');
-  if (State.orientation === 'horizontal') {
-    inpRemove.style = 'height: 43vh';
-    inpAdd.style = 'height: 43vh';
-  }
-  inpRemove.value = State.a;
-  inpAdd.value = '';
-  inpRemove.ondrop = e => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    dropfile(file, inpRemove);
-  };
-  inpAdd.ondrop = e => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    dropfile(file, inpAdd);
-  };
-});
+diffElements.remove.diff.ondrop = e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  dropfile(file, diffElements.remove.input);
+};
 
-const merge = document.getElementById('merge');
+diffElements.add.diff.ondrop = e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  dropfile(file, diffElements.add.input);
+};
+
+reset.addEventListener('click', resetState);
+
 merge.addEventListener('click', () => {
-  reset.click();
-  const inpRemove = document.getElementById('inputRemove');
-  const inpAdd = document.getElementById('inputAdd');
-  inpAdd.value = '';
-  inpRemove.value = apply(State.diff, State.a);
+  resetState();
+  diffElements.add.input.value = '';
+  diffElements.remove.input.value = apply(State.diff, State.cache);
 });
-
-const changes = document.getElementById('changes');
-
+const enterChangesMode = args => {
+  args.forEach(arg => {
+    for (const el of document.getElementsByClassName(`adj-${arg}`)) {
+      el.style.display = 'none';
+    }
+    diffElements[arg].changes.style.display = 'grid';
+  });
+};
+const exitChangesMode = args => {
+  args.forEach(arg => {
+    for (const el of document.getElementsByClassName(`adj-${arg}`)) {
+      el.style.display = null;
+    }
+    diffElements[arg].changes.style.display = 'block';
+  });
+};
 changes.addEventListener('click', () => {
-  const enterChangesMode = args => {
-    args.forEach(arg => {
-      for (const el of document.getElementsByClassName(`adj-${arg}`)) {
-        el.style.display = 'none';
-      }
-      diffElements[arg].style.display = 'grid';
-    });
-  };
-  const exitChangesMode = args => {
-    args.forEach(arg => {
-      for (const el of document.getElementsByClassName(`adj-${arg}`)) {
-        el.style.display = null;
-      }
-      diffElements[arg].style.display = 'block';
-    });
-  };
-  if (diffElements.remove.style.display === 'grid') {
+  if (diffElements.remove.changes.style.display === 'grid') {
     exitChangesMode(['add', 'remove']);
   } else {
-    enterChangesMode(['add', 'remove']);
-    for (const el of document.getElementsByClassName('add')) {
-      const onClick = () => {
-        el.removeEventListener('click', onClick);
-        exitChangesMode(['add']);
-        el.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-          inline: 'center'
-        });
-      };
-      el.addEventListener('click', onClick, true);
+    const addElements = document.getElementsByClassName('add');
+    const removeElements = document.getElementsByClassName('remove');
+    const onlyFor = [];
+
+    if (addElements.length) {
+      onlyFor.push('add');
+      for (const el of addElements) {
+        const onClick = () => {
+          el.removeEventListener('click', onClick);
+          exitChangesMode(['add']);
+          el.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center'
+          });
+        };
+        el.addEventListener('click', onClick, true);
+      }
+    }
+    if (removeElements.length) {
+      onlyFor.push('remove');
+      for (const el of removeElements) {
+        const onClick = () => {
+          el.removeEventListener('click', onClick);
+          exitChangesMode(['remove']);
+          el.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center'
+          });
+        };
+        el.addEventListener('click', onClick, true);
+      }
     }
 
-    for (const el of document.getElementsByClassName('remove')) {
-      const onClick = () => {
-        el.removeEventListener('click', onClick);
-        exitChangesMode(['remove']);
-        el.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-          inline: 'center'
-        });
-      };
-      el.addEventListener('click', onClick, true);
-    }
+    hideInputs(onlyFor);
+    enterChangesMode(onlyFor);
   }
 });
-const rotate = document.getElementById('rotate');
 const rotateLayout = type => {
-  const inpRemove = document.getElementById('inputRemove');
-  const inpAdd = document.getElementById('inputAdd');
   if (type === 'horizontal') {
     localStorage.setItem('orientation', (State.orientation = 'horizontal'));
     main.style = 'flex-direction: column';
-    diffElements.add.style = 'height: 43vh; width: auto';
-    diffElements.remove.style = 'height: 43vh; width: auto';
+    diffElements.add.diff.style = 'height: 43vh; width: auto';
+    diffElements.remove.diff.style = 'height: 43vh; width: auto';
     toolbar.style = 'flex-direction: row; margin: 10px';
-    if (inpRemove) {
-      inpRemove.style = 'height: 43vh';
-      inpAdd.style = 'height: 43vh';
-    }
+    diffElements.remove.input.style = 'height: 43vh';
+    diffElements.add.input.style = 'height: 43vh';
   } else if (type === 'vertical') {
     localStorage.setItem('orientation', (State.orientation = 'vertical'));
     main.style = null;
-    diffElements.add.style = null;
-    diffElements.remove.style = null;
-    if (inpRemove) {
-      inpRemove.style = null;
-      inpAdd.style = null;
-    }
+    diffElements.add.diff.style = null;
+    diffElements.remove.diff.style = null;
+    diffElements.remove.input.style = null;
+    diffElements.add.input.style = null;
     toolbar.style = null;
   }
 };
@@ -146,4 +175,4 @@ rotate.addEventListener('click', () =>
   rotateLayout(State.orientation === 'vertical' ? 'horizontal' : 'vertical')
 );
 rotateLayout(State.orientation);
-reset.click();
+resetState();

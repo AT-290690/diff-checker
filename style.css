@@ -32,6 +32,10 @@ svg:hover {
   justify-content: space-between;
   max-height: 97vh;
 }
+#addChanges,
+#removeChanges {
+  height: 100%;
+}
 .diff {
   font-family: 'Roboto Mono', monospac;
   font-size: 15px;
