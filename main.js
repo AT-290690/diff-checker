@@ -93,7 +93,6 @@ const toggleChangesView = () => {
       onlyFor.push('add');
       for (const el of addElements) {
         const onClick = () => {
-          el.removeEventListener('click', onClick);
           exitChangesMode(['add']);
           el.scrollIntoView({
             behavior: 'smooth',
@@ -101,14 +100,15 @@ const toggleChangesView = () => {
             inline: 'center'
           });
         };
-        el.addEventListener('click', onClick, true);
+        const clone = el.cloneNode(true);
+        el.replaceWith(clone);
+        clone.addEventListener('click', onClick, true);
       }
     }
     if (removeElements.length) {
       onlyFor.push('remove');
       for (const el of removeElements) {
         const onClick = () => {
-          el.removeEventListener('click', onClick);
           exitChangesMode(['remove']);
           el.scrollIntoView({
             behavior: 'smooth',
@@ -116,7 +116,9 @@ const toggleChangesView = () => {
             inline: 'center'
           });
         };
-        el.addEventListener('click', onClick, true);
+        const clone = el.cloneNode(true);
+        el.replaceWith(clone);
+        clone.addEventListener('click', onClick, true);
       }
     }
 
