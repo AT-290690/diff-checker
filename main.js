@@ -92,9 +92,9 @@ const toggleChangesView = () => {
     if (addElements.length) {
       onlyFor.push('add');
       for (const el of addElements) {
-        const onClick = () => {
+        const onClick = e => {
           exitChangesMode(['add']);
-          el.scrollIntoView({
+          e.target.scrollIntoView({
             behavior: 'smooth',
             block: 'center',
             inline: 'center'
@@ -108,9 +108,9 @@ const toggleChangesView = () => {
     if (removeElements.length) {
       onlyFor.push('remove');
       for (const el of removeElements) {
-        const onClick = () => {
+        const onClick = e => {
           exitChangesMode(['remove']);
-          el.scrollIntoView({
+          e.target.scrollIntoView({
             behavior: 'smooth',
             block: 'center',
             inline: 'center'

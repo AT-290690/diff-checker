@@ -4,13 +4,23 @@ export const match = (a, b) => dmp.diff_main(a, b, true);
 export const patch = (diff = [], buffer = '') =>
   dmp.patch_apply(dmp.patch_make(diff), buffer);
 
-const formatTextToHtml = current =>
-  current
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\n/g, '<br/>')
-    .replace(/\s|\t/g, '&nbsp;');
+const formatTextToHtml = current => {
+  switch (current) {
+    case '&':
+      return '&amp;';
+    case '<':
+      return '&lt;';
+    case '>':
+      return '&gt;';
+    case '\n':
+      return '<br/>';
+    case ' ':
+    case '\t':
+      return '&nbsp;';
+    default:
+      return current;
+  }
+};
 
 export const additions = (data = [], buffer = '', element) => {
   const characters = buffer.split('');
