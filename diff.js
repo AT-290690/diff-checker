@@ -1,8 +1,11 @@
 const dmp = new diff_match_patch();
 export const match = (a, b) => dmp.diff_main(a, b, true);
 
-export const patch = (diff = [], buffer = '') =>
-  dmp.patch_apply(dmp.patch_make(diff), buffer);
+export const patch = (diff = [], buffer = '') => {
+  const patch = dmp.patch_make(diff);
+  const [result, errors] = dmp.patch_apply(patch, buffer);
+  return result;
+};
 
 const formatTextToHtml = current => {
   switch (current) {

@@ -181,7 +181,7 @@ merge.addEventListener('click', () => {
   diffElements.remove.input.value = patch(
     State.diff,
     diffElements.add.input.value
-  )[0];
+  );
   diffElements.add.input.value = '';
   //apply(State.diff, State.cache);
 });
