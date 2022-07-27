@@ -178,10 +178,11 @@ reset.addEventListener('click', () => {
 compare.addEventListener('click', diffCheck);
 merge.addEventListener('click', () => {
   enterStage('Prep');
-  diffElements.remove.input.value = patch(
-    State.diff,
-    diffElements.add.input.value
-  );
+  // diffElements.remove.input.value = patch(
+  //   State.diff,
+  //   diffElements.add.input.value
+  // );
+  diffElements.remove.input.value = diffElements.add.input.value;
   diffElements.add.input.value = '';
   //apply(State.diff, State.cache);
 });

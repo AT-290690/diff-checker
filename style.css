@@ -90,6 +90,7 @@ textarea {
   color: #7486a6;
   opacity: 1;
 }
+
 #Remove {
   border-color: var(--color-remove);
   width: 50vw;
