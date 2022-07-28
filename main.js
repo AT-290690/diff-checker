@@ -146,10 +146,8 @@ const rotateLayout = type => {
     toolbar.style = null;
   }
 
-  if (State.stage === 'Prep') {
-    diffElements.add.diff.style.borderColor = 'var(--color-stay)';
-    diffElements.remove.diff.style.borderColor = 'var(--color-stay)';
-  }
+  diffElements.add.diff.style.borderColor = 'var(--color-stay)';
+  diffElements.remove.diff.style.borderColor = 'var(--color-stay)';
 };
 
 const dropfile = (file, el) => {

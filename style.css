@@ -92,14 +92,14 @@ textarea {
 }
 
 #Remove {
-  border-color: var(--color-remove);
+  border-color: var(--color-stay);
   width: 50vw;
   height: 95vh;
   max-height: 95vh;
 }
 
 #Add {
-  border-color: var(--color-add);
+  border-color: var(--color-stay);
   width: 50vw;
   height: 95vh;
   max-height: 95vh;
