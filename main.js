@@ -156,6 +156,31 @@ const dropfile = (file, el) => {
   reader.readAsText(file, 'UTF-8');
 };
 
+diffElements.remove.changes.ondragover = e => {
+  e.preventDefault();
+};
+
+diffElements.add.changes.ondragover = e => {
+  e.preventDefault();
+};
+
+diffElements.remove.changes.ondrop = e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  enterStage('Prep');
+  diffElements.remove.input.value = State.cache.remove;
+  diffElements.add.input.value = State.cache.add;
+  dropfile(file, diffElements.remove.input);
+};
+
+diffElements.add.changes.ondrop = e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  enterStage('Prep');
+  diffElements.remove.input.value = State.cache.remove;
+  diffElements.add.input.value = State.cache.add;
+  dropfile(file, diffElements.add.input);
+};
 diffElements.remove.diff.ondrop = e => {
   e.preventDefault();
   const file = e.dataTransfer.files[0];
