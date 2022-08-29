@@ -15,7 +15,6 @@ export const toolbar = document.getElementById('toolbar');
 export const compare = document.getElementById('compare');
 export const changes = document.getElementById('changes');
 export const reset = document.getElementById('reset');
-export const merge = document.getElementById('merge');
 export const rotate = document.getElementById('rotate');
 
 export const State = {

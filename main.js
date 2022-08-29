@@ -5,9 +5,8 @@ import {
   diffElements,
   toolbar,
   compare,
-  reset,
-  merge,
-  rotate
+  rotate,
+  reset
 } from './common.js';
 
 const showInputs = args => {
@@ -51,7 +50,10 @@ const enterStage = stage => {
       break;
   }
 };
-
+const switchDisplay = (elementA, elementB) => {
+  elementA.style.display = 'none';
+  elementB.style.display = 'block';
+};
 const diffCheck = () => {
   const source = diffElements.remove.input.value;
   const target = diffElements.add.input.value;
@@ -61,6 +63,7 @@ const diffCheck = () => {
   enterStage('Diff');
   additions(State.diff, source, diffElements.add.changes);
   removals(State.diff, source, diffElements.remove.changes);
+  switchDisplay(compare, reset);
 };
 
 const enterChangesMode = args => {
@@ -193,27 +196,26 @@ diffElements.add.diff.ondrop = e => {
   dropfile(file, diffElements.add.input);
 };
 
-reset.addEventListener('click', () => {
+const cancelDiff = () => {
   enterStage('Prep');
   diffElements.remove.input.value = State.cache.remove;
   diffElements.add.input.value = State.cache.add;
-});
+  switchDisplay(reset, compare);
+};
 compare.addEventListener('click', diffCheck);
-merge.addEventListener('click', () => {
-  enterStage('Prep');
-  // diffElements.remove.input.value = patch(
-  //   State.diff,
-  //   diffElements.add.input.value
-  // );
-  diffElements.remove.input.value = diffElements.add.input.value;
-  diffElements.add.input.value = '';
-  //apply(State.diff, State.cache);
-});
-
+reset.addEventListener('click', cancelDiff);
 changes.addEventListener('click', toggleChangesView);
 rotate.addEventListener('click', () =>
   rotateLayout(State.orientation === 'vertical' ? 'horizontal' : 'vertical')
 );
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && State.stage === 'Diff') {
+    e.preventDefault();
+    e.stopPropagation();
+    cancelDiff();
+  }
+});
 
 rotateLayout(State.orientation);
 enterStage('Prep');
