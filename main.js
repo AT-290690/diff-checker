@@ -167,21 +167,24 @@ diffElements.add.changes.ondragover = e => {
   e.preventDefault();
 };
 
-diffElements.remove.changes.ondrop = e => {
-  e.preventDefault();
-  const file = e.dataTransfer.files[0];
+const cancelDiff = () => {
   enterStage('Prep');
   diffElements.remove.input.value = State.cache.remove;
   diffElements.add.input.value = State.cache.add;
+  switchDisplay(reset, compare);
+};
+
+diffElements.remove.changes.ondrop = e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  cancelDiff();
   dropfile(file, diffElements.remove.input);
 };
 
 diffElements.add.changes.ondrop = e => {
   e.preventDefault();
   const file = e.dataTransfer.files[0];
-  enterStage('Prep');
-  diffElements.remove.input.value = State.cache.remove;
-  diffElements.add.input.value = State.cache.add;
+  cancelDiff();
   dropfile(file, diffElements.add.input);
 };
 diffElements.remove.diff.ondrop = e => {
@@ -196,12 +199,6 @@ diffElements.add.diff.ondrop = e => {
   dropfile(file, diffElements.add.input);
 };
 
-const cancelDiff = () => {
-  enterStage('Prep');
-  diffElements.remove.input.value = State.cache.remove;
-  diffElements.add.input.value = State.cache.add;
-  switchDisplay(reset, compare);
-};
 compare.addEventListener('click', diffCheck);
 reset.addEventListener('click', cancelDiff);
 changes.addEventListener('click', toggleChangesView);
