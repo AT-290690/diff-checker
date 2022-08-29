@@ -20,6 +20,10 @@ const formatTextToHtml = current => {
     case ' ':
     case '\t':
       return '&nbsp;';
+    case '"':
+      return '&quot';
+    case "'":
+      return '&#039';
     default:
       return current;
   }
