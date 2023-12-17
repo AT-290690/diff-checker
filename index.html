@@ -5,14 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta
       name="viewport"
-      content="width=device-width, height=device-height,initial-scale=1.0"
+      content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height"
     />
-    <title>Plus One Minus One</title>
-    <link
-      rel="icon"
-      type="image/png"
-      href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAaCAYAAADFTB7LAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAUGVYSWZNTQAqAAAACAACARIAAwAAAAEAAQAAh2kABAAAAAEAAAAmAAAAAAADoAEAAwAAAAEAAQAAoAIABAAAAAEAAAAooAMABAAAAAEAAAAaAAAAALPao1QAAAFZaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA2LjAuMCI+CiAgIDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+CiAgICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiCiAgICAgICAgICAgIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIj4KICAgICAgICAgPHRpZmY6T3JpZW50YXRpb24+MTwvdGlmZjpPcmllbnRhdGlvbj4KICAgICAgPC9yZGY6RGVzY3JpcHRpb24+CiAgIDwvcmRmOlJERj4KPC94OnhtcG1ldGE+Chle4QcAAAHNSURBVFgJY2RgYPgPxIMWMA1al0EdNupASmNoNARHQ5BQCEQuimTw6fQhpAynPDsTE8NCCwsGW1FRrGooSoOKNooMOv46DKrOqlgNJ0YwWVmZIU5RkUFXQACrchasogQEPZo8GNRc1BjEtMQIqMQuzczIyNCgq8tgKSLC4Cwujl0RVBSnAyMWRDB8evaJYVvVNgwD9EL0GHjFeSF1ECOGNEEBJqADC9TVwer+/P/PwALk4wI4Hajlo8Xw+cVnrA7s0uoCmyekIMRQfLEYl9k4xX//+8fAu3o1WD5KXp5hqZUVTrUUpUGcplJRAh6CzKzMDCwccC7YCiYWJgZ2Xna4db++/mL4/4/4toWZsDBDgIwMXP+jr18ZZty5A+cTw4C7yK3OjcEmzwZFD58kH0Pdkzq42Dz/eQx3D9yF8wkxrIGZoFJLC67szufP5Dvwzv47DGKaiFyp6qLK8PfXX4Z7h+7BLXh96zWcTQxj8YMHDPtevoQr/fj7N5xNLAMegrf33WYAYRhoetPE8OXVF4aFIQthQiTTb37+ZABhSsCgzyQUORCWYWA0OSH1D6rpL7A8xAZAJSR2GWyqB0CMohCkh3tHHUhpKI+G4LAPQQA1p3AV6mDcXwAAAABJRU5ErkJggg=="
-    />
+    <link rel="manifest" href="./manifest.json" />
+    <meta name="theme-color" content="#1a1b26" />
+    <meta name="description" content="Simple diff checker" />
+    <title></title>
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
@@ -213,12 +212,7 @@
       </div>
     </div>
 
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"
-      integrity="sha512-5YZxUisfaneUbwv58nPp10qwt6DefHuJ+iAfvPoABZAYwLg4WGJHITaLpyyxJdrljfc0ggUoWc87Z0lfoDS84Q=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
+    <script src="diff_match_patch.js"></script>
     <script type="module" src="./main.js"></script>
   </body>
 </html>
