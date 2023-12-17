@@ -8,6 +8,6 @@ Key features:
 - High contrast colors so that differences stand out
 - Differences breakdown & checkpoints
 - Drag and drop file content
-- Vertical & Horizontal layout
+- Vertical & horizontal layout
 - Dark mode
 - PWA support (works offline)
