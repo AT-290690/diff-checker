@@ -19,7 +19,7 @@ export const rotate = document.getElementById('rotate')
 
 export const State = {
   orientation: localStorage.getItem('orientation') ?? 'vertical',
-  diff: {},
+  diff: [],
   stage: 'Prep', //Prep, Diff
   cache: { remove: '', add: '' },
 }

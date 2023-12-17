@@ -55,8 +55,8 @@ const switchDisplay = (elementA, elementB) => {
   elementB.style.display = 'block'
 }
 const diffCheck = () => {
-  const source = diffElements.remove.input.value
-  const target = diffElements.add.input.value
+  const source = diffElements.remove.input.value.trim()
+  const target = diffElements.add.input.value.trim()
   State.cache.remove = source
   State.cache.add = target
   State.diff = match(source, target)
@@ -85,13 +85,13 @@ const exitChangesMode = (args) => {
 }
 
 const toggleChangesView = () => {
+  if (State.stage !== 'Diff') diffCheck()
   if (diffElements.remove.changes.style.display === 'grid') {
     exitChangesMode(['add', 'remove'])
   } else {
     const addElements = document.getElementsByClassName('add')
     const removeElements = document.getElementsByClassName('remove')
     const onlyFor = []
-
     if (addElements.length) {
       onlyFor.push('add')
       for (const el of addElements) {
