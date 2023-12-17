@@ -3,8 +3,8 @@
   "short_name": "-+",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#8E2F22",
-  "theme_color": "#8E2F22",
+  "background_color": "black",
+  "theme_color": "black",
   "description": "Diff Checker",
   "icons": [
     {
