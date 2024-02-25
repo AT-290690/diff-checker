@@ -63,6 +63,15 @@ const diffCheck = () => {
   enterStage('Diff')
   additions(State.diff, source, diffElements.add.changes)
   removals(State.diff, source, diffElements.remove.changes)
+  const newurl =
+    window.location.protocol +
+    '//' +
+    window.location.host +
+    window.location.pathname +
+    `?a=${encodeURIComponent(
+      LZString.compressToBase64(target)
+    )}&b=${encodeURIComponent(LZString.compressToBase64(source))}`
+  window.history.pushState({ path: newurl }, '', newurl)
   switchDisplay(compare, reset)
 }
 
@@ -132,7 +141,7 @@ const toggleChangesView = () => {
 
 const rotateLayout = (type) => {
   if (type === 'horizontal') {
-    localStorage.setItem('orientation', (State.orientation = 'horizontal'))
+    State.orientation = 'horizontal'
     main.style = 'flex-direction: column'
     diffElements.add.diff.style = 'height: 43vh; width: auto'
     diffElements.remove.diff.style = 'height: 43vh; width: auto'
@@ -140,7 +149,7 @@ const rotateLayout = (type) => {
     diffElements.remove.input.style = 'height: 43vh'
     diffElements.add.input.style = 'height: 43vh'
   } else if (type === 'vertical') {
-    localStorage.setItem('orientation', (State.orientation = 'vertical'))
+    State.orientation = 'vertical'
     main.style = null
     diffElements.add.diff.style = null
     diffElements.remove.diff.style = null
@@ -214,6 +223,20 @@ document.addEventListener('keydown', (e) => {
     cancelDiff()
   }
 })
-
-rotateLayout(State.orientation)
 enterStage('Prep')
+
+const A = new URLSearchParams(location.search).get('a') ?? ''
+const B = new URLSearchParams(location.search).get('b') ?? ''
+
+if (A && B) {
+  try {
+    diffElements.add.input.value = decodeURIComponent(
+      LZString.decompressFromBase64(A)
+    )
+    diffElements.remove.input.value = decodeURIComponent(
+      LZString.decompressFromBase64(B)
+    )
+  } catch (e) {
+    alert(e instanceof Error ? e.message : e)
+  }
+}
