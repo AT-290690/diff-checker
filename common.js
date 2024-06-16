@@ -16,6 +16,7 @@ export const compare = document.getElementById('compare')
 export const changes = document.getElementById('changes')
 export const reset = document.getElementById('reset')
 export const rotate = document.getElementById('rotate')
+export const swap = document.getElementById('swap')
 
 export const State = {
   orientation: 'vertical',

@@ -1,4 +1,4 @@
-import { match, patch, additions, removals } from './diff.js'
+import { match, additions, removals } from './diff.js'
 import {
   State,
   main,
@@ -7,6 +7,7 @@ import {
   compare,
   rotate,
   reset,
+  swap,
 } from './common.js'
 
 const showInputs = (args) => {
@@ -215,7 +216,16 @@ changes.addEventListener('click', toggleChangesView)
 rotate.addEventListener('click', () =>
   rotateLayout(State.orientation === 'vertical' ? 'horizontal' : 'vertical')
 )
-
+swap.addEventListener('click', () => {
+  const temp = {
+    value: diffElements.add.input.value,
+    changes: diffElements.add.changes.innerHTML,
+  }
+  diffElements.add.input.value = diffElements.remove.input.value
+  diffElements.add.changes.innerHTML = diffElements.remove.changes.innerHTML
+  diffElements.remove.input.value = temp.value
+  diffElements.remove.changes.innerHTML = temp.changes
+})
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && State.stage === 'Diff') {
     e.preventDefault()
