@@ -1,4 +1,8 @@
 {
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
   "prettier": {
     "semi": false,
     "singleQuote": true

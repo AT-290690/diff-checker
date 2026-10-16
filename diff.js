@@ -7,73 +7,26 @@ export const patch = (diff = [], buffer = '') => {
   return result
 }
 
-const formatTextToHtml = (current) => {
-  switch (current) {
-    case '&':
-      return '&amp;'
-    case '<':
-      return '&lt;'
-    case '>':
-      return '&gt;'
-    case '\n':
-      return '<br/>'
-    case ' ':
-    case '\t':
-      return '&nbsp;'
-    default:
-      return current
+const render = (data, element, side) => {
+  const fragment = document.createDocumentFragment()
+
+  for (const [type, value] of data) {
+    const isChange = side === 'add' ? type === 1 : type === -1
+    if (type !== 0 && !isChange) continue
+
+    const span = document.createElement('span')
+    span.className = isChange ? side : `stay-${side}`
+    span.textContent = value
+    fragment.append(span)
   }
+
+  element.replaceChildren(fragment)
 }
 
-export const additions = (data = [], buffer = '', element) => {
-  const characters = buffer.split('')
-  let pointer = 0
-  data.forEach((change) => {
-    const type = change[0]
-    const value = change[1]
-    if (type === 0) {
-      let res = ''
-      for (let i = pointer; i < pointer + value.length; i++) {
-        const current = characters[i]
-        res += formatTextToHtml(current)
-      }
-      element.innerHTML += `<span class="stay-add">${res}</span>`
-      pointer += value.length
-    } else if (type === -1) {
-      pointer += value.length
-    } else if (type === 1) {
-      let res = ''
-      for (let i = 0; i < value.length; i++) {
-        const current = value[i]
-        res += formatTextToHtml(current)
-      }
-
-      element.innerHTML += `<span class="add">${res}</span>`
-    }
-  })
+export const additions = (data = [], _buffer = '', element) => {
+  render(data, element, 'add')
 }
-export const removals = (data = [], buffer = '', element) => {
-  const characters = buffer.split('')
-  let pointer = 0
-  data.forEach((change) => {
-    const type = change[0]
-    const value = change[1]
-    if (type === 0) {
-      let res = ''
-      for (let i = pointer; i < pointer + value.length; i++) {
-        const current = characters[i]
-        res += formatTextToHtml(current)
-      }
-      element.innerHTML += `<span class="stay-remove">${res}</span>`
-      pointer += value.length
-    } else if (type === -1) {
-      let res = ''
-      for (let i = pointer; i < pointer + value.length; i++) {
-        const current = characters[i]
-        res += formatTextToHtml(current)
-      }
-      element.innerHTML += `<span class="remove">${res}</span>`
-      pointer += value.length
-    }
-  })
+
+export const removals = (data = [], _buffer = '', element) => {
+  render(data, element, 'remove')
 }

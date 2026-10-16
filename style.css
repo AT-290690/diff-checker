@@ -45,7 +45,7 @@ svg:hover {
   height: 100%;
 }
 .diff {
-  font-family: 'Roboto Mono', monospac;
+  font-family: 'Roboto Mono', monospace;
   font-size: 15px;
   color: var(--color-stay);
   overflow: auto;
@@ -71,7 +71,7 @@ textarea {
   overflow-wrap: normal;
   overflow-x: scroll;
   resize: none;
-  font-family: 'Roboto Mono', monospac;
+  font-family: 'Roboto Mono', monospace;
   color: var(--color-stay);
   font-size: 15px;
   width: 100%;
@@ -107,4 +107,9 @@ textarea {
 
 #reset {
   display: none;
+}
+
+#addChanges,
+#removeChanges {
+  white-space: pre;
 }

@@ -22,5 +22,6 @@ export const State = {
   orientation: 'vertical',
   diff: [],
   stage: 'Prep', //Prep, Diff
+  changesOnly: false,
   cache: { remove: '', add: '' },
 }
