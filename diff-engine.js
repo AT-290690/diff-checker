@@ -19,7 +19,7 @@ export class DiffEngine {
         if (worker !== this.worker) return
         this.finish()
         if (data.error) reject(new Error(data.error))
-        else resolve(data.diff)
+        else resolve({ diff: data.diff, metrics: data.metrics })
       })
 
       worker.addEventListener('error', (event) => {

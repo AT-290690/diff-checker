@@ -19,6 +19,11 @@ class FakeElement {
   className = ''
   textContent = ''
   children = []
+  dataset = {}
+
+  append(...children) {
+    this.children.push(...children)
+  }
 
   replaceChildren(fragment) {
     this.children = fragment.children
@@ -30,7 +35,7 @@ globalThis.document = {
   createElement: () => new FakeElement(),
 }
 
-const { additions, match, removals } = await import('../diff.js')
+const { additions, describeDiff, match, removals } = await import('../diff.js')
 
 test('matching detects leading and trailing whitespace changes', () => {
   assert.notDeepEqual(match('value', ' value '), [[0, 'value']])
@@ -40,9 +45,9 @@ test('rendering preserves text literally instead of interpreting HTML', () => {
   const output = new FakeElement()
   additions([[1, '<img src=x onerror=alert(1)>']], '', output)
 
-  assert.equal(output.children.length, 1)
-  assert.equal(output.children[0].className, 'add')
-  assert.equal(output.children[0].textContent, '<img src=x onerror=alert(1)>')
+  assert.equal(output.children.length, 2)
+  assert.equal(output.children[1].className, 'add')
+  assert.equal(output.children[1].children[1].textContent, '<img src=x onerror=alert(1)>')
 })
 
 test('addition and removal views contain the correct sides of a diff', () => {
@@ -54,11 +59,47 @@ test('addition and removal views contain the correct sides of a diff', () => {
   removals(changes, '', removed)
 
   assert.deepEqual(
-    added.children.map(({ className, textContent }) => [className, textContent]),
-    [['stay-add', 'same'], ['add', ' new']]
+    added.children.slice(1).map(({ className }) => className),
+    ['stay-add', 'add']
   )
   assert.deepEqual(
-    removed.children.map(({ className, textContent }) => [className, textContent]),
-    [['stay-remove', 'same'], ['remove', ' old']]
+    removed.children.slice(1).map(({ className }) => className),
+    ['stay-remove', 'remove']
   )
+})
+
+test('diff descriptions expose source and target positions for every step', () => {
+  const operations = describeDiff([
+    [0, 'one\n'],
+    [-1, 'old'],
+    [1, 'newer'],
+    [0, '\nend'],
+  ])
+
+  assert.deepEqual(operations[1], {
+    type: -1,
+    value: 'old',
+    step: 2,
+    changeNumber: 1,
+    sourceStart: { offset: 4, line: 2, column: 1 },
+    sourceEnd: { offset: 7, line: 2, column: 4 },
+    targetStart: { offset: 4, line: 2, column: 1 },
+    targetEnd: { offset: 4, line: 2, column: 1 },
+  })
+  assert.deepEqual(operations[2].targetEnd, {
+    offset: 9,
+    line: 2,
+    column: 6,
+  })
+})
+
+test('change cards include algorithm steps, ranges, and anchors', () => {
+  const output = new FakeElement()
+  additions([[0, 'same '], [1, 'new']], '', output)
+  const card = output.children[2]
+
+  assert.equal(card.dataset.step, 2)
+  assert.match(card.children[0].textContent, /INSERT #1 · algorithm step 2/)
+  assert.match(card.children[0].textContent, /target \[5, 8\)/)
+  assert.match(card.children[0].textContent, /source anchor 5/)
 })

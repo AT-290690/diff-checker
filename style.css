@@ -123,6 +123,49 @@ textarea {
   display: none;
 }
 
+.change-meta,
+.diff-summary {
+  display: none;
+}
+
+.changes-only .diff-summary {
+  background: #121722;
+  border: 1px solid #293750;
+  color: #a8b8d3;
+  display: block;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0 0 12px;
+  padding: 10px;
+  white-space: pre-wrap;
+}
+
+.changes-only .add,
+.changes-only .remove {
+  background: #11151d;
+  border-left: 3px solid currentColor;
+  display: block;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  white-space: pre-wrap;
+}
+
+.changes-only .change-meta {
+  color: #8ea0bd;
+  display: block;
+  font-size: 11px;
+  line-height: 1.5;
+  margin-bottom: 7px;
+  user-select: text;
+  white-space: pre-wrap;
+}
+
+.changes-only .change-content {
+  color: inherit;
+  display: block;
+  overflow-wrap: anywhere;
+}
+
 #status {
   bottom: 8px;
   color: #7486a6;

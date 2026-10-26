@@ -1,4 +1,4 @@
-const CACHE = 'diff-checker-v2'
+const CACHE = 'diff-checker-v3'
 const ASSETS = [
   './',
   './index.html',

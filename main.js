@@ -1,4 +1,4 @@
-import { additions, removals } from './diff.js'
+import { renderDiff } from './diff.js'
 import { DiffEngine } from './diff-engine.js'
 import {
   MAX_SHARE_BYTES,
@@ -119,7 +119,7 @@ const diffCheck = async ({ updateHistory = true } = {}) => {
   status.textContent = `Comparing ${formatSize(new Blob([source, target]).size)}…`
 
   try {
-    const diff = await diffEngine.compute(source, target)
+    const { diff, metrics } = await diffEngine.compute(source, target)
     if (version !== comparisonVersion) return false
 
     State.cache.remove = source
@@ -127,8 +127,12 @@ const diffCheck = async ({ updateHistory = true } = {}) => {
     State.diff = diff
     enterStage('Diff')
     await nextFrame()
-    additions(diff, source, diffElements.add.changes)
-    removals(diff, source, diffElements.remove.changes)
+    renderDiff(
+      diff,
+      diffElements.add.changes,
+      diffElements.remove.changes,
+      metrics
+    )
     State.diff = []
 
     const shared = updateHistory ? updateSharedUrl(source, target) : !localOnly
@@ -183,12 +187,11 @@ const toggleChangesView = async () => {
 
 for (const side of ['add', 'remove']) {
   diffElements[side].changes.addEventListener('click', (event) => {
-    const isChange =
-      event.target.className === side || event.target.classList?.contains(side)
-    if (!State.changesOnly || !isChange) return
+    const change = event.target.closest?.(`.${side}`)
+    if (!State.changesOnly || !change) return
 
     exitChangesMode([side])
-    event.target.scrollIntoView({
+    change.scrollIntoView({
       behavior: 'smooth',
       block: 'center',
       inline: 'center',
@@ -296,5 +299,13 @@ window.addEventListener('popstate', async () => {
 })
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'))
+  let refreshing = false
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing) return
+    refreshing = true
+    window.location.reload()
+  })
+  window.addEventListener('load', () =>
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+  )
 }

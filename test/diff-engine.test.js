@@ -30,9 +30,15 @@ test('the diff engine returns worker results and terminates the worker', async (
   const result = engine.compute('old', 'new')
 
   assert.deepEqual(worker.data, { source: 'old', target: 'new' })
-  worker.respond({ diff: [[-1, 'old'], [1, 'new']] })
+  worker.respond({
+    diff: [[-1, 'old'], [1, 'new']],
+    metrics: { editDistance: 3, elapsedMs: 1 },
+  })
 
-  assert.deepEqual(await result, [[-1, 'old'], [1, 'new']])
+  assert.deepEqual(await result, {
+    diff: [[-1, 'old'], [1, 'new']],
+    metrics: { editDistance: 3, elapsedMs: 1 },
+  })
   assert.equal(worker.terminated, true)
 })
 
@@ -49,6 +55,6 @@ test('starting a new comparison cancels the previous worker', async () => {
   await assert.rejects(first, { name: 'AbortError' })
   assert.equal(workers[0].terminated, true)
 
-  workers[1].respond({ diff: [[0, 'done']] })
-  assert.deepEqual(await second, [[0, 'done']])
+  workers[1].respond({ diff: [[0, 'done']], metrics: {} })
+  assert.deepEqual(await second, { diff: [[0, 'done']], metrics: {} })
 })

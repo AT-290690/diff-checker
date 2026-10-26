@@ -23,6 +23,7 @@ class FakeElement {
     this.value = ''
     this.style = {}
     this.children = []
+    this.dataset = {}
     this.listeners = new Map()
     const classes = new Set()
     this.classList = {
@@ -34,6 +35,10 @@ class FakeElement {
 
   addEventListener(type, listener) {
     this.listeners.set(type, listener)
+  }
+
+  append(...children) {
+    this.children.push(...children)
   }
 
   click() {
@@ -128,7 +133,13 @@ globalThis.Worker = class FakeWorker {
   postMessage({ source, target }) {
     queueMicrotask(() => {
       const dmp = new globalThis.diff_match_patch()
-      this.listeners.get('message')?.({ data: { diff: dmp.diff_main(source, target, true) } })
+      const diff = dmp.diff_main(source, target, true)
+      this.listeners.get('message')?.({
+        data: {
+          diff,
+          metrics: { editDistance: dmp.diff_levenshtein(diff), elapsedMs: 1 },
+        },
+      })
     })
   }
 
@@ -165,6 +176,12 @@ test('changes-only mode can be entered and exited with one-sided changes', async
 
   await elements.changes.click()
   assert.equal(State.changesOnly, true)
+  assert.match(elements.addChanges.children[0].textContent, /DIFF ALGORITHM/)
+  const inserted = elements.addChanges.children.find(
+    (child) => child.className === 'add'
+  )
+  assert.match(inserted.children[0].textContent, /algorithm step/)
+  assert.match(inserted.children[0].textContent, /target \[/)
   await elements.changes.click()
   assert.equal(State.changesOnly, false)
 })
