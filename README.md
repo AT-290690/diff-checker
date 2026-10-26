@@ -11,3 +11,7 @@ Key features:
 - Vertical & horizontal layout
 - Dark mode
 - PWA support (works offline)
+
+Large comparisons run in a background worker so the interface remains responsive.
+Comparisons over 256 KB combined stay local and are not placed in the URL; this
+sharing limit does not limit the size of files that can be compared.

@@ -7,9 +7,8 @@ const context = vm.createContext({})
 vm.runInContext(await readFile('lz-string.min.js', 'utf8'), context)
 globalThis.LZString = context.LZString
 
-const { decodeSharedText, encodeSharedText, readSharedDiff } = await import(
-  '../share.js'
-)
+const { decodeSharedText, encodeSharedText, isShareable, readSharedDiff } =
+  await import('../share.js')
 
 test('shared text round-trips percent sequences, whitespace, and Unicode', () => {
   const input = '  100% legit %20 <tag> 🦉\n'
@@ -33,4 +32,11 @@ test('a missing query side is treated as empty', () => {
 
 test('an unrelated query is not treated as a shared diff', () => {
   assert.equal(readSharedDiff('?example=true'), null)
+})
+
+test('shareability uses the combined UTF-8 byte size', () => {
+  assert.equal(isShareable('123', '456', 6), true)
+  assert.equal(isShareable('123', '4567', 6), false)
+  assert.equal(isShareable('🦉', '', 3), false)
+  assert.equal(isShareable('🦉', '', 4), true)
 })

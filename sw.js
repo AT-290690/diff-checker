@@ -1,10 +1,12 @@
-const CACHE = 'diff-checker-v1'
+const CACHE = 'diff-checker-v2'
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './common.js',
   './diff.js',
+  './diff-engine.js',
+  './diff-worker.js',
   './main.js',
   './share.js',
   './diff_match_patch.js',

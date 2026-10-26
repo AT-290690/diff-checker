@@ -59,6 +59,10 @@ svg:hover {
   border: none;
   cursor: pointer;
 }
+.button:disabled {
+  cursor: wait;
+  opacity: 0.35;
+}
 #toolbar {
   display: flex;
   flex-direction: column;
@@ -112,4 +116,23 @@ textarea {
 #addChanges,
 #removeChanges {
   white-space: pre;
+}
+
+.changes-only .stay-add,
+.changes-only .stay-remove {
+  display: none;
+}
+
+#status {
+  bottom: 8px;
+  color: #7486a6;
+  font: 11px/1.4 'Roboto Mono', monospace;
+  left: 50%;
+  max-width: 70vw;
+  overflow: hidden;
+  position: fixed;
+  text-align: center;
+  text-overflow: ellipsis;
+  transform: translateX(-50%);
+  white-space: nowrap;
 }

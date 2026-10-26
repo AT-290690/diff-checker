@@ -24,6 +24,12 @@ class FakeElement {
     this.style = {}
     this.children = []
     this.listeners = new Map()
+    const classes = new Set()
+    this.classList = {
+      add: (value) => classes.add(value),
+      contains: (value) => classes.has(value),
+      remove: (value) => classes.delete(value),
+    }
   }
 
   addEventListener(type, listener) {
@@ -31,7 +37,7 @@ class FakeElement {
   }
 
   click() {
-    this.listeners.get('click')?.({ target: this })
+    return this.listeners.get('click')?.({ target: this })
   }
 
   cloneNode() {
@@ -70,6 +76,7 @@ const ids = [
   'reset',
   'rotate',
   'swap',
+  'status',
 ]
 const elements = Object.fromEntries(ids.map((id) => [id, new FakeElement(id)]))
 
@@ -93,6 +100,13 @@ globalThis.window = {
       browserLocation.href = url.href
       browserLocation.search = url.search
     },
+    replaceState(_state, _unused, url) {
+      browserLocation.href = url.href
+      browserLocation.search = url.search
+    },
+  },
+  requestAnimationFrame(callback) {
+    callback()
   },
   addEventListener(type, listener) {
     browserListeners.set(type, listener)
@@ -104,14 +118,30 @@ Object.defineProperty(globalThis, 'navigator', {
   value: {},
 })
 globalThis.alert = () => {}
+globalThis.Worker = class FakeWorker {
+  listeners = new Map()
+
+  addEventListener(type, listener) {
+    this.listeners.set(type, listener)
+  }
+
+  postMessage({ source, target }) {
+    queueMicrotask(() => {
+      const dmp = new globalThis.diff_match_patch()
+      this.listeners.get('message')?.({ data: { diff: dmp.diff_main(source, target, true) } })
+    })
+  }
+
+  terminate() {}
+}
 
 await import('../main.js')
 const { State } = await import('../common.js')
 
-test('comparison preserves whitespace and creates a restorable URL', () => {
+test('comparison preserves whitespace and creates a restorable URL', async () => {
   elements.inputRemove.value = 'value'
   elements.inputAdd.value = ' value '
-  elements.compare.click()
+  await elements.compare.click()
 
   assert.equal(State.cache.remove, 'value')
   assert.equal(State.cache.add, ' value ')
@@ -120,21 +150,33 @@ test('comparison preserves whitespace and creates a restorable URL', () => {
   assert.ok(elements.addChanges.children.some((child) => child.className === 'add'))
 })
 
-test('swapping an active comparison recomputes both rendered sides', () => {
-  elements.swap.click()
+test('swapping an active comparison recomputes both rendered sides', async () => {
+  await elements.swap.click()
 
   assert.equal(State.cache.remove, ' value ')
   assert.equal(State.cache.add, 'value')
   assert.ok(elements.removeChanges.children.some((child) => child.className === 'remove'))
 })
 
-test('changes-only mode can be entered and exited with one-sided changes', () => {
+test('changes-only mode can be entered and exited with one-sided changes', async () => {
   elements.inputRemove.value = 'same'
   elements.inputAdd.value = 'same plus'
-  elements.compare.click()
+  await elements.compare.click()
 
-  elements.changes.click()
+  await elements.changes.click()
   assert.equal(State.changesOnly, true)
-  elements.changes.click()
+  await elements.changes.click()
   assert.equal(State.changesOnly, false)
+})
+
+test('large comparisons stay local instead of generating huge URLs', async () => {
+  const largeText = 'line of local data\n'.repeat(16_000)
+  elements.inputRemove.value = largeText
+  elements.inputAdd.value = `${largeText}changed`
+  await elements.compare.click()
+
+  const params = new URLSearchParams(browserLocation.search)
+  assert.equal(params.has('a'), false)
+  assert.equal(params.has('b'), false)
+  assert.match(elements.status.textContent, /local only/)
 })

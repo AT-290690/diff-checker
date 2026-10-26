@@ -5,6 +5,11 @@ const getCodec = () => {
   return globalThis.LZString
 }
 
+export const MAX_SHARE_BYTES = 256 * 1024
+
+export const isShareable = (source, target, limit = MAX_SHARE_BYTES) =>
+  new Blob([source, target]).size <= limit
+
 export const encodeSharedText = (text) => getCodec().compressToBase64(text)
 
 export const decodeSharedText = (value) => {

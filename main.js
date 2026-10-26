@@ -1,5 +1,11 @@
-import { match, additions, removals } from './diff.js'
-import { encodeSharedText, readSharedDiff } from './share.js'
+import { additions, removals } from './diff.js'
+import { DiffEngine } from './diff-engine.js'
+import {
+  MAX_SHARE_BYTES,
+  encodeSharedText,
+  isShareable,
+  readSharedDiff,
+} from './share.js'
 import {
   State,
   main,
@@ -10,7 +16,11 @@ import {
   reset,
   swap,
   changes,
+  status,
 } from './common.js'
+
+const diffEngine = new DiffEngine()
+let comparisonVersion = 0
 
 const showInputs = (args) => {
   args.forEach((arg) => {
@@ -58,90 +68,132 @@ const switchDisplay = (elementA, elementB) => {
   elementA.style.display = 'none'
   elementB.style.display = 'block'
 }
+
+const formatSize = (bytes) =>
+  bytes >= 1024 * 1024
+    ? `${(bytes / 1024 / 1024).toFixed(1)} MB`
+    : `${Math.round(bytes / 1024)} KB`
+
+const setBusy = (busy) => {
+  for (const control of [compare, changes, rotate, swap, reset]) {
+    control.disabled = busy
+  }
+  diffElements.add.input.readOnly = busy
+  diffElements.remove.input.readOnly = busy
+}
+
+const clearSharedUrl = () => {
+  const url = new URL(window.location.href)
+  url.searchParams.delete('a')
+  url.searchParams.delete('b')
+  window.history.replaceState(null, '', url)
+}
+
 const updateSharedUrl = (source, target) => {
+  if (!isShareable(source, target)) {
+    clearSharedUrl()
+    return false
+  }
+
   const url = new URL(window.location.href)
   url.searchParams.set('a', encodeSharedText(target))
   url.searchParams.set('b', encodeSharedText(source))
   window.history.pushState(null, '', url)
+  return true
 }
 
-const diffCheck = ({ updateHistory = true } = {}) => {
+const nextFrame = () =>
+  new Promise((resolve) =>
+    window.requestAnimationFrame
+      ? window.requestAnimationFrame(resolve)
+      : setTimeout(resolve, 0)
+  )
+
+const diffCheck = async ({ updateHistory = true } = {}) => {
   const source = diffElements.remove.input.value
   const target = diffElements.add.input.value
-  State.cache.remove = source
-  State.cache.add = target
-  State.diff = match(source, target)
-  enterStage('Diff')
-  additions(State.diff, source, diffElements.add.changes)
-  removals(State.diff, source, diffElements.remove.changes)
-  if (updateHistory) updateSharedUrl(source, target)
-  switchDisplay(compare, reset)
+  const version = ++comparisonVersion
+  const localOnly = !isShareable(source, target)
+
+  setBusy(true)
+  status.textContent = `Comparing ${formatSize(new Blob([source, target]).size)}…`
+
+  try {
+    const diff = await diffEngine.compute(source, target)
+    if (version !== comparisonVersion) return false
+
+    State.cache.remove = source
+    State.cache.add = target
+    State.diff = diff
+    enterStage('Diff')
+    await nextFrame()
+    additions(diff, source, diffElements.add.changes)
+    removals(diff, source, diffElements.remove.changes)
+    State.diff = []
+
+    const shared = updateHistory ? updateSharedUrl(source, target) : !localOnly
+    status.textContent = shared
+      ? 'Comparison complete · shareable link ready'
+      : `Comparison complete · local only above ${formatSize(MAX_SHARE_BYTES)}`
+    switchDisplay(compare, reset)
+    return true
+  } catch (error) {
+    if (error?.name === 'AbortError') return false
+    status.textContent = 'Comparison failed'
+    alert(error instanceof Error ? error.message : error)
+    return false
+  } finally {
+    if (version === comparisonVersion) setBusy(false)
+  }
 }
 
 const enterChangesMode = (args) => {
   args.forEach((arg) => {
-    for (const el of document.getElementsByClassName(`stay-${arg}`)) {
-      el.style.display = 'none'
-    }
+    diffElements[arg].changes.classList.add('changes-only')
     diffElements[arg].changes.style.display = 'grid'
   })
 }
 
 const exitChangesMode = (args) => {
   args.forEach((arg) => {
-    for (const el of document.getElementsByClassName(`stay-${arg}`)) {
-      el.style.display = null
-    }
+    diffElements[arg].changes.classList.remove('changes-only')
     diffElements[arg].changes.style.display = 'block'
   })
 }
 
-const toggleChangesView = () => {
-  if (State.stage !== 'Diff') diffCheck()
+const toggleChangesView = async () => {
+  if (State.stage !== 'Diff' && !(await diffCheck())) return
   if (State.changesOnly) {
     exitChangesMode(['add', 'remove'])
     State.changesOnly = false
   } else {
-    const addElements = Array.from(document.getElementsByClassName('add'))
-    const removeElements = Array.from(document.getElementsByClassName('remove'))
     const onlyFor = []
-    if (addElements.length) {
+    if (document.getElementsByClassName('add').length) {
       onlyFor.push('add')
-      for (const el of addElements) {
-        const onClick = (e) => {
-          exitChangesMode(['add'])
-          e.target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-            inline: 'center',
-          })
-        }
-        const clone = el.cloneNode(true)
-        el.replaceWith(clone)
-        clone.addEventListener('click', onClick, true)
-      }
     }
-    if (removeElements.length) {
+    if (document.getElementsByClassName('remove').length) {
       onlyFor.push('remove')
-      for (const el of removeElements) {
-        const onClick = (e) => {
-          exitChangesMode(['remove'])
-          e.target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-            inline: 'center',
-          })
-        }
-        const clone = el.cloneNode(true)
-        el.replaceWith(clone)
-        clone.addEventListener('click', onClick, true)
-      }
     }
 
     hideInputs(onlyFor)
     enterChangesMode(onlyFor)
     State.changesOnly = true
   }
+}
+
+for (const side of ['add', 'remove']) {
+  diffElements[side].changes.addEventListener('click', (event) => {
+    const isChange =
+      event.target.className === side || event.target.classList?.contains(side)
+    if (!State.changesOnly || !isChange) return
+
+    exitChangesMode([side])
+    event.target.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'center',
+    })
+  })
 }
 
 const rotateLayout = (type) => {
@@ -189,8 +241,9 @@ const cancelDiff = () => {
 for (const side of ['add', 'remove']) {
   diffElements[side].diff.ondrop = (event) => {
     event.preventDefault()
+    if (compare.disabled) return
     if (State.stage === 'Diff') cancelDiff()
-    dropfile(event.dataTransfer?.files[0], diffElements[side].input)
+    dropfile(event.dataTransfer?.files?.[0], diffElements[side].input)
   }
 }
 
@@ -200,11 +253,11 @@ changes.addEventListener('click', toggleChangesView)
 rotate.addEventListener('click', () =>
   rotateLayout(State.orientation === 'vertical' ? 'horizontal' : 'vertical')
 )
-swap.addEventListener('click', () => {
+swap.addEventListener('click', async () => {
   const value = diffElements.add.input.value
   diffElements.add.input.value = diffElements.remove.input.value
   diffElements.remove.input.value = value
-  if (State.stage === 'Diff') diffCheck()
+  if (State.stage === 'Diff') await diffCheck()
 })
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && State.stage === 'Diff') {
@@ -215,14 +268,13 @@ document.addEventListener('keydown', (e) => {
 })
 enterStage('Prep')
 
-const loadSharedDiff = () => {
+const loadSharedDiff = async () => {
   try {
     const shared = readSharedDiff(location.search)
     if (!shared) return false
     diffElements.add.input.value = shared.add
     diffElements.remove.input.value = shared.remove
-    diffCheck({ updateHistory: false })
-    return true
+    return await diffCheck({ updateHistory: false })
   } catch (e) {
     alert(e instanceof Error ? e.message : e)
     return false
@@ -231,12 +283,13 @@ const loadSharedDiff = () => {
 
 loadSharedDiff()
 
-window.addEventListener('popstate', () => {
-  if (!loadSharedDiff()) {
+window.addEventListener('popstate', async () => {
+  if (!(await loadSharedDiff())) {
     diffElements.add.input.value = ''
     diffElements.remove.input.value = ''
     State.cache.add = ''
     State.cache.remove = ''
+    status.textContent = ''
     enterStage('Prep')
     switchDisplay(reset, compare)
   }
